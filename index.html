@@ -726,7 +726,7 @@ bc.onmessage = (e) => {
         connectedAgentName = msg.agentName;
         setHeaderAgent(msg.agentName);
         addSystemNotice(`✅ You are now connected to <strong>${msg.agentName}</strong>`);
-        addMessage(`Hi ${userName || 'there'}! I'm ${msg.agentName}. How can I help you today?`, 'agent');
+        addMessage(`Hi! I'm ${msg.agentName}. How can I help you today?`, 'agent');
         chatModal.classList.add('active');
     }
 
