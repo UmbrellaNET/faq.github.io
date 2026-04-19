@@ -3,17 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="robot.png" height="30%" />
+    <link rel="icon" href="robot.png" height="30%"/>
     <title>FAQ - AI Agent</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #f1f5f9;
@@ -21,18 +15,8 @@
             padding: 20px;
             overflow-x: hidden;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            margin-bottom: 30px;
-        }
-
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; padding: 40px 20px; margin-bottom: 30px; }
         h1 {
             font-size: 3rem;
             margin-bottom: 10px;
@@ -42,11 +26,10 @@
             color: transparent;
             text-shadow: 0 5px 15px rgba(56, 189, 248, 0.2);
         }
-
-        .subtitle {
-            font-size: 1.2rem;
-            color: #94a3b8;
-            max-width: 700px;
+        .subtitle { 
+            font-size: 1.2rem; 
+            color: #94a3b8; 
+            max-width: 700px; 
             margin: 0 auto 30px;
             line-height: 1.6;
         }
@@ -60,7 +43,7 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(56, 189, 248, 0.1);
         }
-
+        
         .faq-title {
             color: #38bdf8;
             font-size: 2rem;
@@ -69,13 +52,13 @@
             align-items: center;
             gap: 15px;
         }
-
+        
         .faq-container {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
-
+        
         .faq-item {
             background: rgba(15, 23, 42, 0.8);
             border-radius: 12px;
@@ -84,13 +67,13 @@
             transition: all 0.3s ease;
             border: 1px solid rgba(56, 189, 248, 0.1);
         }
-
-            .faq-item:hover {
-                background: rgba(15, 23, 42, 0.9);
-                border-color: rgba(56, 189, 248, 0.3);
-                transform: translateY(-2px);
-            }
-
+        
+        .faq-item:hover {
+            background: rgba(15, 23, 42, 0.9);
+            border-color: rgba(56, 189, 248, 0.3);
+            transform: translateY(-2px);
+        }
+        
         .faq-question {
             display: flex;
             justify-content: space-between;
@@ -99,12 +82,12 @@
             font-weight: 600;
             color: #f1f5f9;
         }
-
+        
         .faq-icon {
             color: #38bdf8;
             transition: transform 0.3s ease;
         }
-
+        
         .faq-answer {
             max-height: 0;
             overflow: hidden;
@@ -113,12 +96,12 @@
             line-height: 1.6;
             margin-top: 0;
         }
-
+        
         .faq-item.active .faq-answer {
             max-height: 300px;
             margin-top: 15px;
         }
-
+        
         .faq-item.active .faq-icon {
             transform: rotate(180deg);
         }
@@ -130,7 +113,7 @@
             gap: 30px;
             margin-bottom: 80px;
         }
-
+        
         .card {
             background: rgba(30, 41, 59, 0.7);
             border-radius: 16px;
@@ -139,25 +122,25 @@
             border: 1px solid rgba(56, 189, 248, 0.1);
             transition: 0.3s ease;
         }
-
-            .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-            }
-
-            .card h2 {
-                color: #38bdf8;
-                margin-bottom: 15px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-size: 1.3rem;
-            }
-
-            .card p {
-                color: #cbd5e1;
-                line-height: 1.6;
-            }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card h2 {
+            color: #38bdf8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .card p {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
 
         /* Floating AI Button */
         .ai-agent-button {
@@ -177,17 +160,17 @@
             transition: 0.3s ease;
             animation: pulse 2s infinite;
         }
-
-            .ai-agent-button:hover {
-                transform: scale(1.1);
-                box-shadow: 0 12px 30px rgba(235, 178, 230);
-            }
-
-            .ai-agent-button i {
-                font-size: 28px;
-                color: white;
-            }
-
+        
+        .ai-agent-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px rgba(235, 178, 230);
+        }
+        
+        .ai-agent-button i {
+            font-size: 28px;
+            color: white;
+        }
+        
         .notification {
             position: absolute;
             top: -5px;
@@ -222,12 +205,12 @@
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
         }
-
-            .chat-modal.active {
-                display: flex;
-                animation: slideUp 0.3s ease;
-            }
-
+        
+        .chat-modal.active {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+        
         .chat-header {
             background: linear-gradient(to right, #0f172a, #1e293b);
             padding: 20px;
@@ -236,13 +219,13 @@
             justify-content: space-between;
             align-items: center;
         }
-
+        
         .agent-info {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-
+        
         .agent-avatar {
             width: 50px;
             height: 50px;
@@ -254,7 +237,7 @@
             color: white;
             font-size: 22px;
         }
-
+        
         .agent-status {
             color: #10b981;
             font-size: 14px;
@@ -262,14 +245,14 @@
             align-items: center;
             gap: 5px;
         }
-
+        
         .status-dot {
             width: 8px;
             height: 8px;
             background: #10b981;
             border-radius: 50%;
         }
-
+        
         .close-btn {
             background: none;
             border: none;
@@ -277,7 +260,7 @@
             font-size: 22px;
             cursor: pointer;
         }
-
+        
         .chat-body {
             flex: 1;
             padding: 20px;
@@ -286,7 +269,7 @@
             flex-direction: column;
             gap: 20px;
         }
-
+        
         .message {
             max-width: 80%;
             padding: 15px;
@@ -294,35 +277,35 @@
             font-size: 15px;
             line-height: 1.4;
         }
-
+        
         .agent-message {
             background: rgba(104, 61, 102);
             align-self: flex-start;
             border-bottom-left-radius: 5px;
         }
-
+        
         .user-message {
             background: rgba(129, 140, 248, 0.2);
             align-self: flex-end;
             border-bottom-right-radius: 5px;
         }
-
+        
         .timestamp {
             font-size: 11px;
             color: #94a3b8;
             margin-top: 5px;
             text-align: right;
         }
-
+        
         .chat-footer {
             padding: 20px;
         }
-
+        
         .chat-input-container {
             display: flex;
             gap: 10px;
         }
-
+        
         .chat-input {
             flex: 1;
             padding: 10px 15px;
@@ -333,13 +316,13 @@
             font-size: 14px;
             outline: none;
         }
-
-            .chat-input:focus {
-                outline: none;
-                border-color: #EBB2E6;
-                box-shadow: 0 0 0 2px rgba(235, 178, 230, 0.2);
-            }
-
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #EBB2E6;
+            box-shadow: 0 0 0 2px rgba(235, 178, 230, 0.2);
+        }
+        
         .send-btn {
             background: linear-gradient(to right, #5E185B, #EBB2E6);
             border: none;
@@ -350,11 +333,11 @@
             cursor: pointer;
             transition: 0.3s ease;
         }
-
-            .send-btn:hover {
-                opacity: 0.9;
-            }
-
+        
+        .send-btn:hover {
+            opacity: 0.9;
+        }
+        
         /* Typing Indicator */
         .typing-indicator {
             display: none;
@@ -363,107 +346,67 @@
             padding: 15px;
             border-radius: 18px;
         }
-
-            .typing-indicator.active {
-                display: block;
-            }
-
+        
+        .typing-indicator.active {
+            display: block;
+        }
+        
         .typing-dots {
             display: flex;
             gap: 5px;
         }
-
-            .typing-dots span {
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background: #EBB2E6;
-                opacity: 0.4;
-                animation: typing 1.4s infinite;
-            }
-
-                .typing-dots span:nth-child(2) {
-                    animation-delay: 0.2s;
-                }
-
-                .typing-dots span:nth-child(3) {
-                    animation-delay: 0.4s;
-                }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #38bdf8;
+            opacity: 0.4;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
 
         /* Animations */
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
-
+        
         @keyframes bounce {
-            0% {
-                transform: translateY(0);
-            }
-
-            100% {
-                transform: translateY(-5px);
-            }
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
         }
-
+        
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
+        
         @keyframes typing {
-            0%, 60%, 100% {
-                opacity: 0.4;
-                transform: translateY(0);
-            }
-
-            30% {
-                opacity: 1;
-                transform: translateY(-5px);
-            }
+            0%, 60%, 100% { opacity: 0.4; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(-5px); }
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2rem;
-            }
-
-            .subtitle {
-                font-size: 1rem;
-            }
-
-            .faq-section {
-                padding: 20px;
-            }
-
-            .info-cards {
-                grid-template-columns: 1fr;
-            }
-
+            h1 { font-size: 2.2rem; }
+            .subtitle { font-size: 1rem; }
+            .faq-section { padding: 20px; }
+            .info-cards { grid-template-columns: 1fr; }
             .chat-modal {
                 width: calc(100vw - 40px);
                 right: 20px;
                 bottom: 100px;
                 height: 450px;
             }
-
             .ai-agent-button {
                 bottom: 20px;
                 right: 20px;
@@ -479,24 +422,24 @@
         <header>
             <h1><i class="fas fa-robot"></i> FAQ & AI Assistant</h1>
             <p class="subtitle">
-                Click the AI assistant button to ask any question directly.
+                Click the AI assistant button to ask any question directly. 
                 Our AI agent is powered by Gemini and ready to help 24/7.
             </p>
         </header>
 
-
+        
         <!-- Info Cards -->
         <div class="info-cards">
             <div class="card">
                 <h2><i class="fas fa-brain"></i> Intelligent Assistance</h2>
                 <p>Powered by Google's Gemini model, our AI agent provides intelligent, context-aware responses to your questions.</p>
             </div>
-
+            
             <div class="card">
                 <h2><i class="fas fa-bolt"></i> Instant Responses</h2>
                 <p>Get answers in real-time. The AI processes your queries instantly and provides accurate, helpful responses.</p>
             </div>
-
+            
             <div class="card">
                 <h2><i class="fas fa-shield-alt"></i> Secure & Private</h2>
                 <p>Your conversations are encrypted and not permanently stored. We prioritize your privacy and data security.</p>
@@ -514,12 +457,12 @@
     <div class="chat-modal" id="chatModal">
         <div class="chat-header">
             <div class="agent-info">
-                <div class="agent-avatar"><img src="robot.png" alt="AI Agent" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
+                <div class="agent-avatar" id="chatAvatarWrapper"><img src="robot.png" alt="AI Agent" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
                 <div>
-                    <h3>Lora</h3>
+                    <h3 id="chatAgentName">Lora</h3>
                     <div class="agent-status">
-                        <div class="status-dot"></div>
-                        <span>Online</span>
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="chatAgentStatus">Online</span>
                     </div>
                 </div>
             </div>
@@ -528,7 +471,7 @@
 
         <div class="chat-body" id="chatBody">
             <div class="message agent-message">
-                I'm Lora, Umbrella Labs' AI assistant.
+                I'm Lora, Umbrella Labs' AI assistant. 
                 <div class="timestamp">Just now</div>
             </div>
             <div class="typing-indicator" id="typingIndicator">
@@ -549,55 +492,96 @@
     </div>
 
     <script>
-        // DOM Elements
-        const aiAgentButton = document.getElementById('aiAgentButton');
-        const chatModal = document.getElementById('chatModal');
-        const closeChat = document.getElementById('closeChat');
-        const chatBody = document.getElementById('chatBody');
-        const chatInput = document.getElementById('chatInput');
-        const sendMessage = document.getElementById('sendMessage');
-        const typingIndicator = document.getElementById('typingIndicator');
-        const notification = document.getElementById('notification');
-        const faqItems = document.querySelectorAll('.faq-item');
+        /* ══════════════════════════════════════════════════════════════
+           CONFIGURATION
+        ══════════════════════════════════════════════════════════════ */
+        const API_URL   = 'https://faq-eta-three.vercel.app/api/chat';
+        const DEMO_MODE = false; // Set true to test without a live API
 
-        // FAQ Toggle Functionality
+        /* ══════════════════════════════════════════════════════════════
+           LIVE-AGENT BRIDGE  (BroadcastChannel shared with agent.html)
+           Channel: "umbrellanet_livechat"
+
+           Messages sent to agent:
+             TRANSFER_REQUEST  – user wants a human agent
+             USER_MSG          – message while connected to agent
+             USER_DISCONNECT   – user closed / left chat
+
+           Messages received from agent:
+             AGENT_ONLINE      – an agent is online (heartbeat)
+             AGENT_OFFLINE     – agent logged out
+             AGENT_ACCEPT      – agent accepted the transfer
+             AGENT_DENY        – agent denied / unavailable
+             AGENT_MSG         – agent message to user
+             AGENT_EXIT        – agent ended session → return to bot
+        ══════════════════════════════════════════════════════════════ */
+        const CHANNEL  = 'umbrellanet_livechat';
+        const bc       = new BroadcastChannel(CHANNEL);
+        const userId   = 'user_' + Date.now();
+        const userName = 'Customer'; // Could be personalised with a name prompt
+
+        // Keywords that trigger an agent-transfer request
+        const AGENT_TRIGGERS = [
+            /\b(speak|talk|chat)\s+(to|with)\s+(a\s+)?(human|agent|person|representative|rep|staff|support)\b/i,
+            /\b(human|live)\s+(agent|support|help|chat)\b/i,
+            /\btransfer\s+(me\s+)?(to\s+)?(an?\s+)?(agent|human|person)\b/i,
+            /\bconnect\s+me\s+(to|with)\s+(an?\s+)?(agent|human|person)\b/i,
+            /\breal\s+(person|human|agent)\b/i,
+            /\bneed\s+(an?\s+)?(agent|human)\b/i,
+            /\bescalate\b/i,
+        ];
+
+        /* ── LIVE-CHAT STATE ── */
+        let liveMode          = false;  // true = currently connected to human agent
+        let waitingForAgent   = false;  // true = transfer request sent, awaiting response
+        let connectedAgentName = null;
+        let agentOnline       = false;  // true = at least one agent has announced presence
+
+        /* ══════════════════════════════════════════════════════════════
+           DOM ELEMENTS
+        ══════════════════════════════════════════════════════════════ */
+        const aiAgentButton  = document.getElementById('aiAgentButton');
+        const chatModal      = document.getElementById('chatModal');
+        const closeChat      = document.getElementById('closeChat');
+        const chatBody       = document.getElementById('chatBody');
+        const chatInput      = document.getElementById('chatInput');
+        const sendMessage    = document.getElementById('sendMessage');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const notification   = document.getElementById('notification');
+        const faqItems       = document.querySelectorAll('.faq-item');
+
+        // Header elements (dynamic)
+        const chatAgentName   = document.getElementById('chatAgentName');
+        const chatAgentStatus = document.getElementById('chatAgentStatus');
+        const statusDot       = document.getElementById('statusDot');
+
+        /* ══════════════════════════════════════════════════════════════
+           FAQ ACCORDION
+        ══════════════════════════════════════════════════════════════ */
         faqItems.forEach(item => {
             item.addEventListener('click', () => {
-                // Close other FAQ items
-                faqItems.forEach(otherItem => {
-                    if (otherItem !== item && otherItem.classList.contains('active')) {
-                        otherItem.classList.remove('active');
-                    }
-                });
-
-                // Toggle current FAQ item
+                faqItems.forEach(o => { if (o !== item) o.classList.remove('active'); });
                 item.classList.toggle('active');
             });
         });
 
-        // Replace with your actual Vercel URL
-        const API_URL = 'https://faq-two-murex.vercel.app/api/chat';
-
-
-        // For testing, you can use this demo mode if you don't have your API deployed yet
-        const DEMO_MODE = false; // Set to false when your API is ready
-
-        // Generate unique session ID for user
-        const sessionId = 'web_user_' + Date.now();
-
-        // OPEN CHAT
+        /* ══════════════════════════════════════════════════════════════
+           OPEN / CLOSE CHAT
+        ══════════════════════════════════════════════════════════════ */
         aiAgentButton.addEventListener('click', () => {
             chatModal.classList.add('active');
             notification.style.display = 'none';
             setTimeout(() => chatInput.focus(), 300);
         });
 
-        // CLOSE CHAT
         closeChat.addEventListener('click', () => {
             chatModal.classList.remove('active');
+            if (liveMode || waitingForAgent) {
+                bc.postMessage({ type: 'USER_DISCONNECT', userId });
+                resetToBot();
+            }
         });
 
-        // Close chat when clicking outside (optional)
         document.addEventListener('click', (e) => {
             if (!chatModal.contains(e.target) &&
                 !aiAgentButton.contains(e.target) &&
@@ -606,19 +590,87 @@
             }
         });
 
-        // ADD MESSAGE TO CHAT
-        function addMessageToChat(text, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'agent-message');
+        /* ══════════════════════════════════════════════════════════════
+           HEADER UPDATE HELPERS
+        ══════════════════════════════════════════════════════════════ */
+        function setHeaderBot() {
+            chatAgentName.textContent   = 'Lora';
+            chatAgentStatus.textContent = 'Online';
+            statusDot.style.background  = '#10b981';
+        }
 
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            messageDiv.innerHTML = `${text}<div class="timestamp">${timestamp}</div>`;
+        function setHeaderWaiting() {
+            chatAgentName.textContent   = 'Lora';
+            chatAgentStatus.textContent = 'Connecting to agent…';
+            statusDot.style.background  = '#f59e0b';
+        }
 
-            chatBody.appendChild(messageDiv);
+        function setHeaderAgent(name) {
+            chatAgentName.textContent   = name || 'Live Agent';
+            chatAgentStatus.textContent = 'Live Agent Connected';
+            statusDot.style.background  = '#10b981';
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           MESSAGE HELPERS
+        ══════════════════════════════════════════════════════════════ */
+        function addMessageToChat(html, sender, isSystem = false) {
+            const div = document.createElement('div');
+            if (isSystem) {
+                div.style.cssText =
+                    'text-align:center;font-size:12px;color:#94a3b8;padding:6px 12px;' +
+                    'border:1px dashed rgba(206,62,192,0.4);border-radius:20px;margin:4px auto;max-width:90%';
+                div.innerHTML = html;
+            } else {
+                div.classList.add('message', sender === 'user' ? 'user-message' : 'agent-message');
+                const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                div.innerHTML = `${html}<div class="timestamp">${ts}</div>`;
+            }
+            chatBody.appendChild(div);
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        // DEMO RESPONSES (for testing)
+        function showTyping() { typingIndicator.classList.add('active'); }
+        function hideTyping()  { typingIndicator.classList.remove('active'); }
+
+        /* ══════════════════════════════════════════════════════════════
+           AGENT TRANSFER DETECTION
+        ══════════════════════════════════════════════════════════════ */
+        function wantsLiveAgent(text) {
+            return AGENT_TRIGGERS.some(rx => rx.test(text));
+        }
+
+        function requestAgentTransfer(lastMessage) {
+            if (waitingForAgent || liveMode) return;
+            waitingForAgent = true;
+            setHeaderWaiting();
+            addMessageToChat(
+                '⏳ Please wait — I\'m connecting you to a live agent. This may take a moment…',
+                'agent'
+            );
+            bc.postMessage({
+                type: 'TRANSFER_REQUEST',
+                userId,
+                userName,
+                lastMessage
+            });
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           RESET TO BOT
+        ══════════════════════════════════════════════════════════════ */
+        function resetToBot() {
+            liveMode           = false;
+            waitingForAgent    = false;
+            connectedAgentName = null;
+            setHeaderBot();
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           MAIN SEND HANDLER
+        ══════════════════════════════════════════════════════════════ */
+        const sessionId = 'web_user_' + Date.now();
+
         const demoResponses = [
             "I'm an AI assistant powered by Gemini. I can help answer your questions, provide explanations, and assist with various tasks.",
             "I understand you're asking about our services. I can provide detailed information about how the AI agent works and what it can do for you.",
@@ -627,103 +679,156 @@
             "I'm here to help 24/7! Feel free to ask me anything, whether it's about technology, learning, creative projects, or general knowledge."
         ];
 
-        // SEND MESSAGE TO BACKEND
         async function sendUserMessage() {
             const messageText = chatInput.value.trim();
             if (!messageText) return;
 
-            // Add user message to chat
             addMessageToChat(messageText, 'user');
             chatInput.value = '';
 
-            // Show typing indicator
-            typingIndicator.classList.add('active');
+            // ── If already connected to a live agent, relay message ──
+            if (liveMode) {
+                bc.postMessage({
+                    type: 'USER_MSG',
+                    userId,
+                    userName,
+                    text: messageText,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+                return;
+            }
+
+            // ── If waiting for agent, queue message but don't hit API ──
+            if (waitingForAgent) {
+                addMessageToChat(
+                    '⏳ Still connecting you to an agent, please hold on…',
+                    'agent'
+                );
+                return;
+            }
+
+            // ── Check if user is asking for a live agent ──
+            if (wantsLiveAgent(messageText)) {
+                requestAgentTransfer(messageText);
+                return;
+            }
+
+            // ── Normal AI bot flow ──
+            showTyping();
 
             try {
                 let aiResponse;
 
                 if (DEMO_MODE) {
-                    // Demo mode - use random responses
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-                    const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
-                    aiResponse = randomResponse;
+                    await new Promise(r => setTimeout(r, 1000));
+                    aiResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
                 } else {
-                    // Real API call
                     const response = await fetch(API_URL, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
-                        body: JSON.stringify({
-                            message: messageText,
-                            session_id: sessionId
-                        })
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify({ message: messageText, session_id: sessionId })
                     });
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
-
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-
+                    if (data.error) throw new Error(data.error);
                     aiResponse = data.response || data.answer || "I received your message but couldn't process it properly.";
                 }
 
-                // Hide typing indicator and add AI response
-                typingIndicator.classList.remove('active');
+                hideTyping();
                 addMessageToChat(aiResponse, 'agent');
 
+                // Check if the AI's response itself hints at needing a human
+                // (e.g. "would you like to speak to an agent?") — also watch
+                // if user's next message triggers it. Nothing needed here.
+
             } catch (error) {
-                // Hide typing indicator
-                typingIndicator.classList.remove('active');
-
-                // Show error message
+                hideTyping();
                 console.error('Chat error:', error);
-
-                let errorMessage = "⚠️ Sorry, I'm having trouble connecting to the AI service. ";
-
+                let errMsg = "⚠️ Sorry, I'm having trouble connecting to the AI service. ";
                 if (error.message.includes('Failed to fetch')) {
-                    errorMessage += "Please check your internet connection.";
+                    errMsg += "Please check your internet connection.";
                 } else if (error.message.includes('404')) {
-                    errorMessage += "The AI service endpoint is not configured. Please update the API_URL in the script.";
+                    errMsg += "The AI service endpoint is not configured. Please update the API_URL in the script.";
                 } else {
-                    errorMessage += `Error: ${error.message}`;
+                    errMsg += `Error: ${error.message}`;
                 }
-
-                addMessageToChat(errorMessage, 'agent');
-
-
+                addMessageToChat(errMsg, 'agent');
             }
         }
 
-        // EVENT LISTENERS
         sendMessage.addEventListener('click', sendUserMessage);
-
         chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendUserMessage();
-            }
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendUserMessage(); }
         });
 
-        // FAQ Quick Action - Click on FAQ answer to send to AI
+        /* ══════════════════════════════════════════════════════════════
+           BROADCAST CHANNEL — receive messages from agent.html
+        ══════════════════════════════════════════════════════════════ */
+        bc.onmessage = (e) => {
+            const msg = e.data;
+
+            // Track agent online presence
+            if (msg.type === 'AGENT_ONLINE')  agentOnline = true;
+            if (msg.type === 'AGENT_OFFLINE') agentOnline = false;
+
+            // ── Agent accepted our transfer ──
+            if (msg.type === 'AGENT_ACCEPT' && msg.userId === userId) {
+                waitingForAgent    = false;
+                liveMode           = true;
+                connectedAgentName = msg.agentName;
+                setHeaderAgent(msg.agentName);
+                addMessageToChat(
+                    `✅ <strong>${msg.agentName}</strong> has joined the chat. How can I help you?`,
+                    'agent'
+                );
+                // Make sure modal is open
+                chatModal.classList.add('active');
+            }
+
+            // ── Agent denied or is unavailable ──
+            if (msg.type === 'AGENT_DENY' && msg.userId === userId) {
+                waitingForAgent = false;
+                resetToBot();
+                addMessageToChat(
+                    '😔 No agent is available at the moment. We\'ll get in touch with you as soon as one becomes available. In the meantime, I\'m here to help!',
+                    'agent'
+                );
+            }
+
+            // ── Message from live agent ──
+            if (msg.type === 'AGENT_MSG' && msg.userId === userId && liveMode) {
+                addMessageToChat(msg.text, 'agent');
+                // Ensure chat is open
+                chatModal.classList.add('active');
+            }
+
+            // ── Agent ended the session ──
+            if (msg.type === 'AGENT_EXIT' && msg.userId === userId) {
+                resetToBot();
+                addMessageToChat(
+                    '🔄 The agent has ended this session. You\'ve been transferred back to Lora.',
+                    'agent'
+                );
+                addMessageToChat(
+                    '👋 Hi again! How can I help you?',
+                    'agent'
+                );
+            }
+        };
+
+        /* ══════════════════════════════════════════════════════════════
+           FAQ QUICK ACTION
+        ══════════════════════════════════════════════════════════════ */
         document.querySelectorAll('.faq-answer').forEach(answerElement => {
             answerElement.addEventListener('click', (e) => {
                 if (e.target === answerElement) {
                     const faqText = answerElement.textContent.trim();
                     if (faqText.length > 10) {
-                        // Open chat if not open
                         if (!chatModal.classList.contains('active')) {
                             chatModal.classList.add('active');
                             notification.style.display = 'none';
                         }
-
-                        // Add FAQ text to input
                         chatInput.value = `About: ${faqText.substring(0, 100)}...`;
                         chatInput.focus();
                     }
@@ -731,24 +836,11 @@
             });
         });
 
-        // Auto-hide notification after 5 seconds
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 5000);
-
-        // Welcome message
-        console.log('AI Agent Interface loaded successfully!');
-        console.log('Update the API_URL variable with your Vercel app URL.');
-        console.log('Current API URL:', API_URL);
+        /* ══════════════════════════════════════════════════════════════
+           MISC INIT
+        ══════════════════════════════════════════════════════════════ */
+        setTimeout(() => { notification.style.display = 'none'; }, 5000);
+        console.log('AI Agent Interface loaded. API URL:', API_URL);
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
