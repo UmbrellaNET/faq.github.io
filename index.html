@@ -14,6 +14,7 @@
             font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
         }
 
+        
         body {
             background: linear-gradient(145deg, #FFF8FC 0%, #FDF0FA 100%);
             color: #2D1B2E;
@@ -57,6 +58,7 @@
             backdrop-filter: blur(2px);
         }
 
+        /* FAQ SECTION — soft light cards with #EBB2E6 accents */
         .faq-section {
             background: rgba(255, 248, 253, 0.95);
             backdrop-filter: blur(2px);
@@ -132,6 +134,7 @@
             transform: rotate(180deg);
         }
 
+        /* Info cards — white with #EBB2E6 borders */
         .info-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -169,6 +172,7 @@
             line-height: 1.55;
         }
 
+        /* Floating AI Button — using #5E185B and #A4358F gradient */
         .ai-agent-button {
             position: fixed;
             bottom: 30px;
@@ -214,6 +218,7 @@
             border: 2px solid white;
         }
 
+        /* Chat Modal — LIGHT MODE with custom pink palette */
         .chat-modal {
             position: fixed;
             bottom: 110px;
@@ -284,6 +289,8 @@
             border-radius: 50%;
         }
 
+        /* Close button removed - replaced by toggle behavior */
+
         .chat-body {
             flex: 1;
             padding: 20px;
@@ -294,6 +301,7 @@
             background: #FFFCFE;
         }
 
+        /* message bubbles — using custom pinks + enhanced formatting for paragraphs */
         .message {
             max-width: 88%;
             padding: 12px 18px;
@@ -304,6 +312,7 @@
             word-wrap: break-word;
         }
 
+        /* improved styling for structured text inside messages */
         .message p {
             margin-bottom: 12px;
         }
@@ -312,16 +321,9 @@
         }
         .message ul, .message ol {
             margin: 8px 0 8px 20px;
-            padding-left: 0;
         }
         .message li {
-            margin-bottom: 6px;
-        }
-        .message ol {
-            list-style-type: decimal;
-        }
-        .message ul {
-            list-style-type: disc;
+            margin-bottom: 4px;
         }
         .message strong, .message b {
             color: #5E185B;
@@ -337,28 +339,9 @@
             font-family: monospace;
             font-size: 0.85em;
         }
-        
-        /* Clickable link styling */
-        .message a {
-            color: #A4358F;
-            text-decoration: underline;
-            word-break: break-all;
-            transition: color 0.2s ease;
-        }
-        
-        .message a:hover {
-            color: #5E185B;
-            text-decoration: none;
-        }
-        
-        .message a {
-            display: inline-block;
-            max-width: 100%;
-            overflow-wrap: break-word;
-        }
 
         .agent-message {
-            background: #FCE4F5;
+            background: #FCE4F5;  /* lightest pink */
             color: #2D1B2E;
             align-self: flex-start;
             border-bottom-left-radius: 6px;
@@ -456,6 +439,7 @@
         .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
         .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
+        /* system notice — soft pink */
         .system-notice {
             text-align: center;
             font-size: 11px;
@@ -468,6 +452,7 @@
             border: 1px solid #EBB2E6;
         }
 
+        /* details form — matching palette */
         .details-form {
             background: #FEF7FC;
             border: 1px solid #EBB2E6;
@@ -606,6 +591,7 @@
                 </div>
             </div>
         </div>
+        <!-- CLOSE BUTTON REMOVED - chat toggles via icon only -->
     </div>
     <div class="chat-body" id="chatBody">
         <div class="message agent-message">
@@ -623,9 +609,14 @@
 </div>
 
 <script>
+    // ---------- MODIFIED: Remove close button, toggle chat via FAB (chat icon) ----------
+    // Clicking chat icon now CLOSES chat if open, OPENS if closed.
+    // Also removed closeChat button references and adjusted modal open/close logic.
+    
     const API_URL = 'https://faq-two-murex.vercel.app/api/chat';
     const DEMO_MODE = false;
 
+    // Broadcast channel for agent.html (cross-tab live agent handshake)
     const CHANNEL_NAME = 'umbrellanet_livechat';
     const bc = new BroadcastChannel(CHANNEL_NAME);
     const userId = 'user_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
@@ -637,6 +628,7 @@
     let agentOnlineGlobal = false;
     let awaitingDetails = false;
 
+    // DOM elements
     const aiBtn = document.getElementById('aiAgentButton');
     const modal = document.getElementById('chatModal');
     const chatBody = document.getElementById('chatBody');
@@ -648,6 +640,7 @@
     const chatAgentStatusSpan = document.getElementById('chatAgentStatus');
     const statusDotSpan = document.getElementById('statusDot');
 
+    // Agent triggers regex
     const AGENT_TRIGGERS = [
         /\b(speak|talk|chat)\s+(to|with)\s+(a\s+)?(human|agent|person|representative|rep|staff|support)\b/i,
         /\b(human|live)\s+(agent|support|help|chat)\b/i,
@@ -663,101 +656,55 @@
     function setHeaderWaiting() { chatAgentNameSpan.innerText = 'Lora'; chatAgentStatusSpan.innerText = 'Connecting to agent...'; statusDotSpan.style.background = '#F59E0B'; }
     function setHeaderAgent(name) { chatAgentNameSpan.innerText = name || 'Live Agent'; chatAgentStatusSpan.innerText = 'Live Agent'; statusDotSpan.style.background = '#A4358F'; }
 
-    // ENHANCED: Convert URLs to clickable links with proper formatting
+    /**
+     * Convert plain text response from Gemini into HTML with paragraphs, lists & bold formatting.
+     */
     function formatAIResponseToHTML(text) {
         if (!text) return '<p>✨ No response received.</p>';
         let content = text.trim();
-        
-        // FIRST: Convert URLs to clickable links (http, https, www)
-        const urlPattern = /(\b(https?:\/\/|www\.)[^\s<]+[^\s.,;:!?<>\)\]\}])/gi;
-        content = content.replace(urlPattern, function(url) {
-            let href = url;
-            if (href.startsWith('www.')) {
-                href = 'http://' + href;
-            }
-            let displayUrl = url;
-            if (displayUrl.length > 50) {
-                displayUrl = displayUrl.substring(0, 40) + '...' + displayUrl.substring(displayUrl.length - 10);
-            }
-            return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color: #A4358F; text-decoration: underline;">${displayUrl}</a>`;
-        });
-        
-        // Convert email addresses to mailto links
-        const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
-        content = content.replace(emailPattern, function(email) {
-            return `<a href="mailto:${email}" style="color: #A4358F; text-decoration: underline;">${email}</a>`;
-        });
-        
-        // Bold formatting
         content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         content = content.replace(/__(.+?)__/g, '<strong>$1</strong>');
-        
-        // Italic formatting
         content = content.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
         content = content.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
         
         const lines = content.split(/\r?\n/);
-        let inUnorderedList = false;
-        let inOrderedList = false;
+        let inList = false;
         let htmlParts = [];
         
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
-            
-            const unorderedMatch = line.match(/^[\s]*([\*\-\•])\s+(.+)$/);
-            if (unorderedMatch) {
-                if (!inUnorderedList) {
-                    if (inOrderedList) {
-                        htmlParts.push('</ol>');
-                        inOrderedList = false;
-                    }
+            const listMatch = line.match(/^[\s]*([\*\-\•])\s+(.+)$/);
+            if (listMatch) {
+                if (!inList) {
                     htmlParts.push('<ul>');
-                    inUnorderedList = true;
+                    inList = true;
                 }
-                htmlParts.push(`<li>${unorderedMatch[2]}</li>`);
+                htmlParts.push(`<li>${listMatch[2]}</li>`);
                 continue;
-            }
-            
-            const orderedMatch = line.match(/^[\s]*(\d+)\.\s+(.+)$/);
-            if (orderedMatch) {
-                if (!inOrderedList) {
-                    if (inUnorderedList) {
-                        htmlParts.push('</ul>');
-                        inUnorderedList = false;
-                    }
-                    htmlParts.push('<ol>');
-                    inOrderedList = true;
-                }
-                htmlParts.push(`<li>${orderedMatch[2]}</li>`);
-                continue;
-            }
-            
-            if (inUnorderedList) {
+            } 
+            if (inList) {
                 htmlParts.push('</ul>');
-                inUnorderedList = false;
+                inList = false;
             }
-            if (inOrderedList) {
-                htmlParts.push('</ol>');
-                inOrderedList = false;
+            const numMatch = line.match(/^[\s]*(\d+)\.\s+(.+)$/);
+            if (numMatch) {
+                if (!inList) {
+                    htmlParts.push('<ol>');
+                    inList = true;
+                }
+                htmlParts.push(`<li>${numMatch[2]}</li>`);
+                continue;
             }
-            
+            if (inList) {
+                htmlParts.push('</ul>');
+                inList = false;
+            }
             if (line.trim() === '') continue;
-            
             let processedLine = line;
             processedLine = processedLine.replace(/`([^`]+)`/g, '<code>$1</code>');
-            
-            if (line.match(/^#{1,3}\s/)) {
-                const headingLevel = line.match(/^#{1,3}/)[0].length;
-                const headingText = line.replace(/^#{1,3}\s/, '');
-                htmlParts.push(`<h${headingLevel}>${headingText}</h${headingLevel}>`);
-            } else {
-                htmlParts.push(`<p>${processedLine}</p>`);
-            }
+            htmlParts.push(`<p>${processedLine}</p>`);
         }
-        
-        if (inUnorderedList) htmlParts.push('</ul>');
-        if (inOrderedList) htmlParts.push('</ol>');
-        
+        if (inList) htmlParts.push('</ul>');
         let result = htmlParts.join('');
         if (!result) result = `<p>${content}</p>`;
         return result;
@@ -832,6 +779,7 @@
         document.getElementById('df_submit').addEventListener('click', () => {
             const name = document.getElementById('df_name').value.trim();
             const email = document.getElementById('df_email').value.trim();
+            const msg = document.getElementById('df_msg').value.trim();
             if (!name || !email) {
                 if (!name) document.getElementById('df_name').style.borderColor = '#EF4444';
                 if (!email) document.getElementById('df_email').style.borderColor = '#EF4444';
@@ -840,8 +788,8 @@
             userName = name;
             formDiv.remove();
             awaitingDetails = false;
-            addSystemNotice(`📨 Thanks ${name}, we'll contact you at ${email}.`);
-            addMessage("Your details have been shared with our team. We'll reach out as soon as possible. Meanwhile, feel free to ask me anything!", 'agent');
+            addSystemNotice(`📨 Thanks ${name}, we’ll contact you at ${email}.`);
+            addMessage("Your details have been shared with our team. We’ll reach out as soon as possible. Meanwhile, feel free to ask me anything!", 'agent');
         });
     }
 
@@ -873,7 +821,7 @@
     async function getAIResponse(userMsg) {
         if (DEMO_MODE) {
             await new Promise(r => setTimeout(r, 700));
-            return "**Gemini AI Demo**  \n*Here is a formatted response:*  \n\n- Bullet point one: helpful information.\n- Second bullet: structured nicely.\n\nYou can ask about our integrations, pricing, or support policies. Feel free to type **\"human\"** to talk to a live agent!\n\nVisit our website: https://www.umbrellanet.com.au";
+            return "**Gemini AI Demo**  \n*Here is a formatted response:*  \n\n- Bullet point one: helpful information.\n- Second bullet: structured nicely.\n\nYou can ask about our integrations, pricing, or support policies. Feel free to type **\"human\"** to talk to a live agent!";
         }
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -912,6 +860,7 @@
         }
     }
 
+    // BroadcastChannel events
     bc.onmessage = (ev) => {
         const msg = ev.data;
         if (msg.type === 'AGENT_ONLINE') agentOnlineGlobal = true;
@@ -943,9 +892,12 @@
         }
     };
 
+    // NEW TOGGLE BEHAVIOR: clicking chat icon toggles modal open/closed (removed close button)
     aiBtn.addEventListener('click', () => {
         if (modal.classList.contains('active')) {
             modal.classList.remove('active');
+            // If in live or waiting mode, notify disconnect but do not reset on manual close? Preserve state as per original pattern.
+            // But to keep consistent: When user manually closes chat via icon, we disconnect from agent if live (similar to close button behavior)
             if (liveMode || waitingForAgent) {
                 bc.postMessage({ type: 'USER_DISCONNECT', userId });
                 resetToBot();
@@ -957,6 +909,7 @@
         }
     });
     
+    // Optional: Click outside to close (still a common UX pattern but we keep for friendliness)
     document.addEventListener('click', (e) => {
         if (!modal.contains(e.target) && !aiBtn.contains(e.target) && modal.classList.contains('active')) {
             modal.classList.remove('active');
