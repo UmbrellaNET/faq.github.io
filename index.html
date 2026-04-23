@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>  
+<head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23A4358F'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 12h-8v-1c0-1.33 2.67-2 4-2s4 .67 4 2v1z'/%3E%3C/svg%3E">
@@ -58,6 +58,7 @@
             backdrop-filter: blur(2px);
         }
 
+        /* FAQ SECTION — soft light cards with #EBB2E6 accents */
         .faq-section {
             background: rgba(255, 248, 253, 0.95);
             backdrop-filter: blur(2px);
@@ -133,6 +134,7 @@
             transform: rotate(180deg);
         }
 
+        /* Info cards — white with #EBB2E6 borders */
         .info-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -170,6 +172,7 @@
             line-height: 1.55;
         }
 
+        /* Floating AI Button — using #5E185B and #A4358F gradient */
         .ai-agent-button {
             position: fixed;
             bottom: 30px;
@@ -215,6 +218,7 @@
             border: 2px solid white;
         }
 
+        /* Chat Modal — LIGHT MODE with custom pink palette */
         .chat-modal {
             position: fixed;
             bottom: 110px;
@@ -285,6 +289,8 @@
             border-radius: 50%;
         }
 
+        /* Close button removed - replaced by toggle behavior */
+
         .chat-body {
             flex: 1;
             padding: 20px;
@@ -295,6 +301,7 @@
             background: #FFFCFE;
         }
 
+        /* message bubbles — using custom pinks + enhanced formatting for paragraphs */
         .message {
             max-width: 88%;
             padding: 12px 18px;
@@ -305,6 +312,7 @@
             word-wrap: break-word;
         }
 
+        /* improved styling for structured text inside messages */
         .message p {
             margin-bottom: 12px;
         }
@@ -332,31 +340,8 @@
             font-size: 0.85em;
         }
 
-        /* Clickable link styling inside agent messages */
-        .agent-message a {
-            color: #5E185B;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            word-break: break-all;
-            transition: color 0.15s ease;
-        }
-        .agent-message a:hover {
-            color: #A4358F;
-        }
-
-        /* Links inside user (purple) bubbles */
-        .user-message a {
-            color: #FCE4F5;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            word-break: break-all;
-        }
-        .user-message a:hover {
-            color: #ffffff;
-        }
-
         .agent-message {
-            background: #FCE4F5;
+            background: #FCE4F5;  /* lightest pink */
             color: #2D1B2E;
             align-self: flex-start;
             border-bottom-left-radius: 6px;
@@ -454,6 +439,7 @@
         .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
         .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
+        /* system notice — soft pink */
         .system-notice {
             text-align: center;
             font-size: 11px;
@@ -466,6 +452,7 @@
             border: 1px solid #EBB2E6;
         }
 
+        /* details form — matching palette */
         .details-form {
             background: #FEF7FC;
             border: 1px solid #EBB2E6;
@@ -604,6 +591,7 @@
                 </div>
             </div>
         </div>
+        <!-- CLOSE BUTTON REMOVED - chat toggles via icon only -->
     </div>
     <div class="chat-body" id="chatBody">
         <div class="message agent-message">
@@ -621,9 +609,14 @@
 </div>
 
 <script>
+    // ---------- MODIFIED: Remove close button, toggle chat via FAB (chat icon) ----------
+    // Clicking chat icon now CLOSES chat if open, OPENS if closed.
+    // Also removed closeChat button references and adjusted modal open/close logic.
+    
     const API_URL = 'https://faq-two-murex.vercel.app/api/chat';
     const DEMO_MODE = false;
 
+    // Broadcast channel for agent.html (cross-tab live agent handshake)
     const CHANNEL_NAME = 'umbrellanet_livechat';
     const bc = new BroadcastChannel(CHANNEL_NAME);
     const userId = 'user_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
@@ -635,6 +628,7 @@
     let agentOnlineGlobal = false;
     let awaitingDetails = false;
 
+    // DOM elements
     const aiBtn = document.getElementById('aiAgentButton');
     const modal = document.getElementById('chatModal');
     const chatBody = document.getElementById('chatBody');
@@ -646,6 +640,7 @@
     const chatAgentStatusSpan = document.getElementById('chatAgentStatus');
     const statusDotSpan = document.getElementById('statusDot');
 
+    // Agent triggers regex
     const AGENT_TRIGGERS = [
         /\b(speak|talk|chat)\s+(to|with)\s+(a\s+)?(human|agent|person|representative|rep|staff|support)\b/i,
         /\b(human|live)\s+(agent|support|help|chat)\b/i,
@@ -662,114 +657,82 @@
     function setHeaderAgent(name) { chatAgentNameSpan.innerText = name || 'Live Agent'; chatAgentStatusSpan.innerText = 'Live Agent'; statusDotSpan.style.background = '#A4358F'; }
 
     /**
-     * Convert plain URLs in text into clickable <a> tags.
-     * Runs AFTER markdown is converted to HTML, so it only matches
-     * bare URLs that aren't already inside an href="..." attribute.
-     */
-    function linkifyHTML(html) {
-        // Match http/https URLs that are NOT already inside an href attribute
-        // Uses a negative lookbehind for href=" to skip already-linked text
-        return html.replace(
-            /(?<!href=["'])(?<!['"=])(https?:\/\/[^\s<>"')\]]+)/g,
-            '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
-        );
-    }
-
-    /**
-     * Convert plain text response from Gemini into HTML with paragraphs,
-     * lists, bold formatting, and clickable links.
+     * Convert plain text response from Gemini into HTML with paragraphs, lists & bold formatting.
      */
     function formatAIResponseToHTML(text) {
         if (!text) return '<p>✨ No response received.</p>';
         let content = text.trim();
-
-        // Markdown inline formatting
         content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         content = content.replace(/__(.+?)__/g, '<strong>$1</strong>');
         content = content.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
         content = content.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
-
-        // Markdown links [text](url) → <a>
-        content = content.replace(
-            /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-            '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-        );
-
+        
         const lines = content.split(/\r?\n/);
         let inList = false;
-        let listType = 'ul';
         let htmlParts = [];
-
+        
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
-
-            // Unordered list item
             const listMatch = line.match(/^[\s]*([\*\-\•])\s+(.+)$/);
             if (listMatch) {
-                if (!inList || listType !== 'ul') {
-                    if (inList) htmlParts.push(`</${listType}>`);
+                if (!inList) {
                     htmlParts.push('<ul>');
                     inList = true;
-                    listType = 'ul';
                 }
                 htmlParts.push(`<li>${listMatch[2]}</li>`);
                 continue;
+            } 
+            if (inList) {
+                htmlParts.push('</ul>');
+                inList = false;
             }
-
-            // Ordered list item
             const numMatch = line.match(/^[\s]*(\d+)\.\s+(.+)$/);
             if (numMatch) {
-                if (!inList || listType !== 'ol') {
-                    if (inList) htmlParts.push(`</${listType}>`);
+                if (!inList) {
                     htmlParts.push('<ol>');
                     inList = true;
-                    listType = 'ol';
                 }
                 htmlParts.push(`<li>${numMatch[2]}</li>`);
                 continue;
             }
-
             if (inList) {
-                htmlParts.push(`</${listType}>`);
+                htmlParts.push('</ul>');
                 inList = false;
             }
-
             if (line.trim() === '') continue;
-
-            // Inline code
-            let processedLine = line.replace(/`([^`]+)`/g, '<code>$1</code>');
+            let processedLine = line;
+            processedLine = processedLine.replace(/`([^`]+)`/g, '<code>$1</code>');
             htmlParts.push(`<p>${processedLine}</p>`);
         }
-
-        if (inList) htmlParts.push(`</${listType}>`);
-
+        if (inList) htmlParts.push('</ul>');
         let result = htmlParts.join('');
         if (!result) result = `<p>${content}</p>`;
-
-        // Convert any remaining bare URLs to links
-        result = linkifyHTML(result);
-
         return result;
     }
-
+    
     function addFormattedMessage(contentHtml, sender) {
         const div = document.createElement('div');
         div.classList.add('message', sender === 'user' ? 'user-message' : 'agent-message');
         const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         if (sender === 'user') {
-            // Escape HTML for user messages, then linkify bare URLs
-            const safe = contentHtml.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
-            div.innerHTML = `<p>${linkifyHTML(safe)}</p><div class="timestamp">${ts}</div>`;
+            const safeText = contentHtml.replace(/[&<>]/g, function(m) {
+                if(m === '&') return '&amp;';
+                if(m === '<') return '&lt;';
+                if(m === '>') return '&gt;';
+                return m;
+            });
+            div.innerHTML = `<p>${safeText}</p><div class="timestamp">${ts}</div>`;
         } else {
             div.innerHTML = `${contentHtml}<div class="timestamp">${ts}</div>`;
         }
         chatBody.insertBefore(div, typingDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
     }
-
+    
     function addMessage(textOrHtml, sender, isHtml = false) {
         if (sender === 'agent' && !isHtml) {
-            addFormattedMessage(formatAIResponseToHTML(textOrHtml), 'agent');
+            const formattedHtml = formatAIResponseToHTML(textOrHtml);
+            addFormattedMessage(formattedHtml, 'agent');
         } else if (sender === 'user') {
             addFormattedMessage(textOrHtml, 'user');
         } else {
@@ -777,10 +740,9 @@
             div.classList.add('message', sender === 'user' ? 'user-message' : 'agent-message');
             const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             if (sender === 'agent') {
-                div.innerHTML = `<p>${linkifyHTML(textOrHtml)}</p><div class="timestamp">${ts}</div>`;
+                div.innerHTML = `<p>${textOrHtml}</p><div class="timestamp">${ts}</div>`;
             } else {
-                const safe = textOrHtml.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
-                div.innerHTML = `<p>${linkifyHTML(safe)}</p><div class="timestamp">${ts}</div>`;
+                div.innerHTML = `<p>${textOrHtml.replace(/[&<>]/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];})}</p><div class="timestamp">${ts}</div>`;
             }
             chatBody.insertBefore(div, typingDiv);
             chatBody.scrollTop = chatBody.scrollHeight;
@@ -817,6 +779,7 @@
         document.getElementById('df_submit').addEventListener('click', () => {
             const name = document.getElementById('df_name').value.trim();
             const email = document.getElementById('df_email').value.trim();
+            const msg = document.getElementById('df_msg').value.trim();
             if (!name || !email) {
                 if (!name) document.getElementById('df_name').style.borderColor = '#EF4444';
                 if (!email) document.getElementById('df_email').style.borderColor = '#EF4444';
@@ -825,8 +788,8 @@
             userName = name;
             formDiv.remove();
             awaitingDetails = false;
-            addSystemNotice(`📨 Thanks ${name}, we'll contact you at ${email}.`);
-            addMessage("Your details have been shared with our team. We'll reach out as soon as possible. Meanwhile, feel free to ask me anything!", 'agent');
+            addSystemNotice(`📨 Thanks ${name}, we’ll contact you at ${email}.`);
+            addMessage("Your details have been shared with our team. We’ll reach out as soon as possible. Meanwhile, feel free to ask me anything!", 'agent');
         });
     }
 
@@ -855,11 +818,10 @@
     }
 
     const sessionId = 'web_signature_pink_' + Date.now();
-
     async function getAIResponse(userMsg) {
         if (DEMO_MODE) {
             await new Promise(r => setTimeout(r, 700));
-            return "**Gemini AI Demo**  \n*Here is a formatted response:*  \n\n- Bullet point one: helpful information.\n- Second bullet: structured nicely.\n\nVisit https://umbrellalabs.ai for more info or check out our docs at https://docs.umbrellalabs.ai.";
+            return "**Gemini AI Demo**  \n*Here is a formatted response:*  \n\n- Bullet point one: helpful information.\n- Second bullet: structured nicely.\n\nYou can ask about our integrations, pricing, or support policies. Feel free to type **\"human\"** to talk to a live agent!";
         }
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -898,6 +860,7 @@
         }
     }
 
+    // BroadcastChannel events
     bc.onmessage = (ev) => {
         const msg = ev.data;
         if (msg.type === 'AGENT_ONLINE') agentOnlineGlobal = true;
@@ -929,9 +892,12 @@
         }
     };
 
+    // NEW TOGGLE BEHAVIOR: clicking chat icon toggles modal open/closed (removed close button)
     aiBtn.addEventListener('click', () => {
         if (modal.classList.contains('active')) {
             modal.classList.remove('active');
+            // If in live or waiting mode, notify disconnect but do not reset on manual close? Preserve state as per original pattern.
+            // But to keep consistent: When user manually closes chat via icon, we disconnect from agent if live (similar to close button behavior)
             if (liveMode || waitingForAgent) {
                 bc.postMessage({ type: 'USER_DISCONNECT', userId });
                 resetToBot();
@@ -942,7 +908,8 @@
             setTimeout(() => chatInput.focus(), 200);
         }
     });
-
+    
+    // Optional: Click outside to close (still a common UX pattern but we keep for friendliness)
     document.addEventListener('click', (e) => {
         if (!modal.contains(e.target) && !aiBtn.contains(e.target) && modal.classList.contains('active')) {
             modal.classList.remove('active');
