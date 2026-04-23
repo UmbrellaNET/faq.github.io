@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+<head> 
+    <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23A4358F'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 12h-8v-1c0-1.33 2.67-2 4-2s4 .67 4 2v1z'/%3E%3C/svg%3E">
     <title>FAQ · AI Assistant</title>
@@ -244,6 +244,9 @@
             background: #FEF7FC;
             padding: 18px 20px;
             border-bottom: 1px solid #F5D9F2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .agent-info {
@@ -286,18 +289,7 @@
             border-radius: 50%;
         }
 
-        .close-btn {
-            background: none;
-            border: none;
-            color: #A4358F;
-            font-size: 22px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .close-btn:hover {
-            color: #5E185B;
-        }
+        /* Close button removed - replaced by toggle behavior */
 
         .chat-body {
             flex: 1;
@@ -309,18 +301,47 @@
             background: #FFFCFE;
         }
 
-        /* message bubbles — using custom pinks */
+        /* message bubbles — using custom pinks + enhanced formatting for paragraphs */
         .message {
-            max-width: 82%;
-            padding: 12px 16px;
+            max-width: 88%;
+            padding: 12px 18px;
             border-radius: 22px;
             font-size: 14px;
-            line-height: 1.45;
+            line-height: 1.55;
             box-shadow: 0 1px 1px rgba(0,0,0,0.02);
+            word-wrap: break-word;
+        }
+
+        /* improved styling for structured text inside messages */
+        .message p {
+            margin-bottom: 12px;
+        }
+        .message p:last-child {
+            margin-bottom: 0;
+        }
+        .message ul, .message ol {
+            margin: 8px 0 8px 20px;
+        }
+        .message li {
+            margin-bottom: 4px;
+        }
+        .message strong, .message b {
+            color: #5E185B;
+            font-weight: 600;
+        }
+        .message em {
+            font-style: italic;
+        }
+        .message code {
+            background: rgba(164, 53, 143, 0.1);
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 0.85em;
         }
 
         .agent-message {
-            background: #FCE4F5;  /* lightest pink kept */
+            background: #FCE4F5;  /* lightest pink */
             color: #2D1B2E;
             align-self: flex-start;
             border-bottom-left-radius: 6px;
@@ -336,7 +357,7 @@
         .timestamp {
             font-size: 10px;
             color: #9B6B97;
-            margin-top: 6px;
+            margin-top: 8px;
             text-align: right;
         }
 
@@ -559,13 +580,18 @@
 <div class="chat-modal" id="chatModal">
     <div class="chat-header">
         <div class="agent-info">
-            <div class="agent-avatar"><i class="fas fa-robot"></i></div>
+            <div class="agent-avatar">
+                <img src="logo.png" alt="Agent Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
             <div>
                 <h3 id="chatAgentName">Lora</h3>
-                <div class="agent-status"><span class="status-dot" id="statusDot"></span> <span id="chatAgentStatus">Online</span></div>
+                <div class="agent-status">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="chatAgentStatus">Online</span>
+                </div>
             </div>
         </div>
-        <button class="close-btn" id="closeChat"><i class="fas fa-times"></i></button>
+        <!-- CLOSE BUTTON REMOVED - chat toggles via icon only -->
     </div>
     <div class="chat-body" id="chatBody">
         <div class="message agent-message">
@@ -583,7 +609,10 @@
 </div>
 
 <script>
-    // ---------- LIGHT MODE CHAT WITH SIGNATURE PINK PALETTE ----------
+    // ---------- MODIFIED: Remove close button, toggle chat via FAB (chat icon) ----------
+    // Clicking chat icon now CLOSES chat if open, OPENS if closed.
+    // Also removed closeChat button references and adjusted modal open/close logic.
+    
     const API_URL = 'https://faq-two-murex.vercel.app/api/chat';
     const DEMO_MODE = false;
 
@@ -602,7 +631,6 @@
     // DOM elements
     const aiBtn = document.getElementById('aiAgentButton');
     const modal = document.getElementById('chatModal');
-    const closeModal = document.getElementById('closeChat');
     const chatBody = document.getElementById('chatBody');
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendMessage');
@@ -628,13 +656,97 @@
     function setHeaderWaiting() { chatAgentNameSpan.innerText = 'Lora'; chatAgentStatusSpan.innerText = 'Connecting to agent...'; statusDotSpan.style.background = '#F59E0B'; }
     function setHeaderAgent(name) { chatAgentNameSpan.innerText = name || 'Live Agent'; chatAgentStatusSpan.innerText = 'Live Agent'; statusDotSpan.style.background = '#A4358F'; }
 
-    function addMessage(html, sender) {
+    /**
+     * Convert plain text response from Gemini into HTML with paragraphs, lists & bold formatting.
+     */
+    function formatAIResponseToHTML(text) {
+        if (!text) return '<p>✨ No response received.</p>';
+        let content = text.trim();
+        content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        content = content.replace(/__(.+?)__/g, '<strong>$1</strong>');
+        content = content.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+        content = content.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
+        
+        const lines = content.split(/\r?\n/);
+        let inList = false;
+        let htmlParts = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            const listMatch = line.match(/^[\s]*([\*\-\•])\s+(.+)$/);
+            if (listMatch) {
+                if (!inList) {
+                    htmlParts.push('<ul>');
+                    inList = true;
+                }
+                htmlParts.push(`<li>${listMatch[2]}</li>`);
+                continue;
+            } 
+            if (inList) {
+                htmlParts.push('</ul>');
+                inList = false;
+            }
+            const numMatch = line.match(/^[\s]*(\d+)\.\s+(.+)$/);
+            if (numMatch) {
+                if (!inList) {
+                    htmlParts.push('<ol>');
+                    inList = true;
+                }
+                htmlParts.push(`<li>${numMatch[2]}</li>`);
+                continue;
+            }
+            if (inList) {
+                htmlParts.push('</ul>');
+                inList = false;
+            }
+            if (line.trim() === '') continue;
+            let processedLine = line;
+            processedLine = processedLine.replace(/`([^`]+)`/g, '<code>$1</code>');
+            htmlParts.push(`<p>${processedLine}</p>`);
+        }
+        if (inList) htmlParts.push('</ul>');
+        let result = htmlParts.join('');
+        if (!result) result = `<p>${content}</p>`;
+        return result;
+    }
+    
+    function addFormattedMessage(contentHtml, sender) {
         const div = document.createElement('div');
         div.classList.add('message', sender === 'user' ? 'user-message' : 'agent-message');
         const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        div.innerHTML = `${html}<div class="timestamp">${ts}</div>`;
+        if (sender === 'user') {
+            const safeText = contentHtml.replace(/[&<>]/g, function(m) {
+                if(m === '&') return '&amp;';
+                if(m === '<') return '&lt;';
+                if(m === '>') return '&gt;';
+                return m;
+            });
+            div.innerHTML = `<p>${safeText}</p><div class="timestamp">${ts}</div>`;
+        } else {
+            div.innerHTML = `${contentHtml}<div class="timestamp">${ts}</div>`;
+        }
         chatBody.insertBefore(div, typingDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    function addMessage(textOrHtml, sender, isHtml = false) {
+        if (sender === 'agent' && !isHtml) {
+            const formattedHtml = formatAIResponseToHTML(textOrHtml);
+            addFormattedMessage(formattedHtml, 'agent');
+        } else if (sender === 'user') {
+            addFormattedMessage(textOrHtml, 'user');
+        } else {
+            const div = document.createElement('div');
+            div.classList.add('message', sender === 'user' ? 'user-message' : 'agent-message');
+            const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (sender === 'agent') {
+                div.innerHTML = `<p>${textOrHtml}</p><div class="timestamp">${ts}</div>`;
+            } else {
+                div.innerHTML = `<p>${textOrHtml.replace(/[&<>]/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];})}</p><div class="timestamp">${ts}</div>`;
+            }
+            chatBody.insertBefore(div, typingDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
     }
 
     function addSystemNotice(text) {
@@ -705,18 +817,11 @@
         }, 10000);
     }
 
-    // Send message to Gemini (or fallback)
     const sessionId = 'web_signature_pink_' + Date.now();
     async function getAIResponse(userMsg) {
         if (DEMO_MODE) {
             await new Promise(r => setTimeout(r, 700));
-            const demoPool = [
-                "Thanks for your question! Lora here — you can find more details in our FAQ. Let me know if you need deeper help.",
-                "That’s interesting! Could you elaborate a bit? I’m here to assist with any technical or product queries.",
-                "Great question! Umbrella Labs focuses on AI-driven support tools. Feel free to ask about features or integrations.",
-                "I can help with that! Our AI is built on Gemini for accurate responses. Anything specific you'd like to know?"
-            ];
-            return demoPool[Math.floor(Math.random() * demoPool.length)];
+            return "**Gemini AI Demo**  \n*Here is a formatted response:*  \n\n- Bullet point one: helpful information.\n- Second bullet: structured nicely.\n\nYou can ask about our integrations, pricing, or support policies. Feel free to type **\"human\"** to talk to a live agent!";
         }
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -748,14 +853,14 @@
         try {
             const aiReply = await getAIResponse(text);
             hideTyping();
-            addMessage(aiReply, 'agent');
+            addMessage(aiReply, 'agent', false);
         } catch (err) {
             hideTyping();
             addMessage(`⚠️ AI service error: ${err.message || 'connection issue'}. Please try again.`, 'agent');
         }
     }
 
-    // BroadcastChannel events (agent panel communication)
+    // BroadcastChannel events
     bc.onmessage = (ev) => {
         const msg = ev.data;
         if (msg.type === 'AGENT_ONLINE') agentOnlineGlobal = true;
@@ -787,29 +892,37 @@
         }
     };
 
-    // UI events
+    // NEW TOGGLE BEHAVIOR: clicking chat icon toggles modal open/closed (removed close button)
     aiBtn.addEventListener('click', () => {
-        modal.classList.add('active');
-        notificationBadge.style.display = 'none';
-        setTimeout(() => chatInput.focus(), 200);
-    });
-    closeModal.addEventListener('click', () => {
-        modal.classList.remove('active');
-        if (liveMode || waitingForAgent) {
-            bc.postMessage({ type: 'USER_DISCONNECT', userId });
-            resetToBot();
+        if (modal.classList.contains('active')) {
+            modal.classList.remove('active');
+            // If in live or waiting mode, notify disconnect but do not reset on manual close? Preserve state as per original pattern.
+            // But to keep consistent: When user manually closes chat via icon, we disconnect from agent if live (similar to close button behavior)
+            if (liveMode || waitingForAgent) {
+                bc.postMessage({ type: 'USER_DISCONNECT', userId });
+                resetToBot();
+            }
+        } else {
+            modal.classList.add('active');
+            notificationBadge.style.display = 'none';
+            setTimeout(() => chatInput.focus(), 200);
         }
     });
+    
+    // Optional: Click outside to close (still a common UX pattern but we keep for friendliness)
     document.addEventListener('click', (e) => {
         if (!modal.contains(e.target) && !aiBtn.contains(e.target) && modal.classList.contains('active')) {
             modal.classList.remove('active');
+            if (liveMode || waitingForAgent) {
+                bc.postMessage({ type: 'USER_DISCONNECT', userId });
+                resetToBot();
+            }
         }
     });
 
     sendBtn.addEventListener('click', () => { const val = chatInput.value.trim(); if (val) { chatInput.value = ''; handleUserMessage(val); } });
     chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); } });
 
-    // FAQ quick fill
     document.querySelectorAll('.faq-answer').forEach(el => {
         el.addEventListener('click', (e) => {
             if (e.target === el || el.contains(e.target)) {
@@ -825,7 +938,6 @@
     });
 
     setTimeout(() => { notificationBadge.style.display = 'none'; }, 5000);
-    console.log('Signature pink light mode chat ready | Colors: #5E185B, #A4358F, #EBB2E6, #FCE4F5');
 </script>
 </body>
 </html>
