@@ -513,6 +513,45 @@
             background: #A4358F;
         }
 
+        /* Notification permission banner */
+        .notif-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #5E185B;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(94,24,91,0.3);
+            z-index: 9999;
+            animation: slideDown 0.3s ease;
+            max-width: calc(100vw - 40px);
+        }
+        .notif-banner button {
+            background: white;
+            color: #5E185B;
+            border: none;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .notif-banner button:hover { background: #EBB2E6; }
+        .notif-banner .dismiss { background: transparent; color: rgba(255,255,255,0.7); padding: 5px 8px; }
+        .notif-banner .dismiss:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
         @keyframes gentlePulse {
             0% { box-shadow: 0 8px 20px rgba(94,24,91,0.3); }
             50% { box-shadow: 0 12px 28px rgba(94,24,91,0.5); }
@@ -661,14 +700,73 @@
     function setHeaderWaiting() { chatAgentNameSpan.innerText = 'Lora'; chatAgentStatusSpan.innerText = 'Connecting to agent...'; statusDotSpan.style.background = '#F59E0B'; }
     function setHeaderAgent(name) { chatAgentNameSpan.innerText = name || 'Live Agent'; chatAgentStatusSpan.innerText = 'Live Agent'; statusDotSpan.style.background = '#A4358F'; }
 
+    // ── Desktop Notifications ─────────────────────────────────────────────────
+
+    /** Show a one-time banner asking the user to allow notifications. */
+    function showNotifPermissionBanner() {
+        if (document.getElementById('notifBanner')) return; // already shown
+        const banner = document.createElement('div');
+        banner.id = 'notifBanner';
+        banner.className = 'notif-banner';
+        banner.innerHTML = `
+            <i class="fas fa-bell"></i>
+            <span>Enable desktop notifications to be alerted when a live agent responds.</span>
+            <button id="notifAllowBtn">Allow</button>
+            <button class="dismiss" id="notifDismissBtn">✕</button>
+        `;
+        document.body.appendChild(banner);
+
+        document.getElementById('notifAllowBtn').addEventListener('click', async () => {
+            banner.remove();
+            await Notification.requestPermission();
+        });
+        document.getElementById('notifDismissBtn').addEventListener('click', () => banner.remove());
+
+        // Auto-dismiss after 12 s
+        setTimeout(() => { if (banner.isConnected) banner.remove(); }, 12000);
+    }
+
+    /** Request permission silently (no UI prompt from us). Returns true if granted. */
+    async function requestNotificationPermission() {
+        if (!('Notification' in window)) return false;
+        if (Notification.permission === 'granted') return true;
+        if (Notification.permission === 'denied') return false;
+        const result = await Notification.requestPermission();
+        return result === 'granted';
+    }
+
+    /**
+     * Fire a desktop notification alerting agents/user of a live-chat request.
+     * Clicking the notification focuses the window and opens the chat modal.
+     */
+    function sendDesktopNotification(title, body) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const n = new Notification(title, {
+            body,
+            icon: 'logo.png',
+            badge: 'logo.png',
+            tag: 'lora-agent-request',   // replaces any previous notification with same tag
+            renotify: true,              // re-plays sound/vibration even if tag matches
+            requireInteraction: true     // notification stays until user interacts
+        });
+        n.onclick = () => {
+            window.focus();
+            modal.classList.add('active');
+            notificationBadge.style.display = 'none';
+            n.close();
+        };
+        // Safety fallback — close after 60 s
+        setTimeout(() => n.close(), 60000);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+
     /**
      * Convert plain URLs in text into clickable <a> tags.
      * Runs AFTER markdown is converted to HTML, so it only matches
      * bare URLs that aren't already inside an href="..." attribute.
      */
     function linkifyHTML(html) {
-        // Match http/https URLs that are NOT already inside an href attribute
-        // Uses a negative lookbehind for href=" to skip already-linked text
         return html.replace(
             /(?<!href=["'])(?<!['"=])(https?:\/\/[^\s<>"')\]]+)/g,
             '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
@@ -757,7 +855,6 @@
         div.classList.add('message', sender === 'user' ? 'user-message' : 'agent-message');
         const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         if (sender === 'user') {
-            // Escape HTML for user messages, then linkify bare URLs
             const safe = contentHtml.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
             div.innerHTML = `<p>${linkifyHTML(safe)}</p><div class="timestamp">${ts}</div>`;
         } else {
@@ -838,12 +935,35 @@
         setHeaderBot();
     }
 
-    function requestAgentTransfer() {
+    async function requestAgentTransfer() {
         if (waitingForAgent || liveMode) return;
         waitingForAgent = true;
         setHeaderWaiting();
-        addSystemNotice("⏳ Requesting a live agent — please hold...");
+        addSystemNotice("⏳ Requesting a live agent — please hold up to 1 minute...");
         bc.postMessage({ type: 'TRANSFER_REQUEST', userId, userName, lastMessage: 'user requested agent' });
+
+        // ── Desktop notification ──────────────────────────────────────────────
+        // If permission is already granted, fire immediately.
+        // If not yet asked, show a friendly in-page banner first, then try to fire.
+        if (Notification.permission === 'granted') {
+            sendDesktopNotification(
+                '💬 Live Agent Requested',
+                `${userName} is asking to speak with a live agent. Click to open the chat.`
+            );
+        } else if (Notification.permission !== 'denied') {
+            // Prompt via banner, then request permission and fire the notification
+            showNotifPermissionBanner();
+            const granted = await requestNotificationPermission();
+            if (granted) {
+                sendDesktopNotification(
+                    '💬 Live Agent Requested',
+                    `${userName} is asking to speak with a live agent. Click to open the chat.`
+                );
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
+        // Wait 1 minute before giving up
         setTimeout(() => {
             if (waitingForAgent) {
                 waitingForAgent = false;
@@ -851,7 +971,7 @@
                 addMessage("😔 No agents are available right now. Please leave your details and we'll follow up shortly.", 'agent');
                 showDetailsForm();
             }
-        }, 10000);
+        }, 60000); // 60 seconds = 1 minute
     }
 
     const sessionId = 'web_signature_pink_' + Date.now();
@@ -911,6 +1031,12 @@
             addSystemNotice(`✅ Connected to live agent: ${connectedAgentName}`);
             addMessage(`Hi! I'm ${connectedAgentName}. How can I assist you today?`, 'agent');
             modal.classList.add('active');
+
+            // Notify the user (tab may be in background)
+            sendDesktopNotification(
+                '✅ Agent Connected',
+                `${connectedAgentName} has joined the chat. Click to reply.`
+            );
         }
         if (msg.type === 'AGENT_DENY' && msg.userId === userId) {
             waitingForAgent = false;
@@ -921,6 +1047,12 @@
         if (msg.type === 'AGENT_MSG' && msg.userId === userId && liveMode) {
             addMessage(msg.text, 'agent');
             modal.classList.add('active');
+
+            // Desktop notification for incoming agent message (tab may be in background)
+            sendDesktopNotification(
+                `💬 ${connectedAgentName || 'Live Agent'}`,
+                msg.text.length > 80 ? msg.text.slice(0, 77) + '…' : msg.text
+            );
         }
         if (msg.type === 'AGENT_EXIT' && msg.userId === userId) {
             resetToBot();
@@ -971,6 +1103,14 @@
     });
 
     setTimeout(() => { notificationBadge.style.display = 'none'; }, 5000);
+
+    // Proactively ask for notification permission shortly after page load
+    // (only if it hasn't been decided yet)
+    window.addEventListener('load', () => {
+        if ('Notification' in window && Notification.permission === 'default') {
+            setTimeout(showNotifPermissionBanner, 3000);
+        }
+    });
 </script>
 </body>
 </html>
