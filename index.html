@@ -970,7 +970,7 @@
         if (Notification.permission === 'granted') {
             sendAgentAlertNotification(
                 '💬 Live Agent Requested',
-                `A new client is asking to speak with a live agent. Click to open the agent dashboard.`
+                `A new client is asking to speak with a live agent.`
             );
         } else if (Notification.permission !== 'denied') {
             // Prompt via banner, then request permission and fire the notification
