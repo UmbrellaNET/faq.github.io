@@ -735,9 +735,32 @@
         return result === 'granted';
     }
 
+    const AGENT_DASHBOARD_URL = 'https://umbrellanet.github.io/FAQDashboard.github.io/agent.html';
+
     /**
-     * Fire a desktop notification alerting agents/user of a live-chat request.
-     * Clicking the notification focuses the window and opens the chat modal.
+     * Notify AGENTS of an incoming chat request.
+     * Clicking opens the agent dashboard in a new tab.
+     */
+    function sendAgentAlertNotification(title, body) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const n = new Notification(title, {
+            body,
+            icon: 'logo.png',
+            badge: 'logo.png',
+            tag: 'lora-agent-request',
+            renotify: true,
+            requireInteraction: true
+        });
+        n.onclick = () => {
+            window.open(AGENT_DASHBOARD_URL, '_blank');
+            n.close();
+        };
+        setTimeout(() => n.close(), 60000);
+    }
+
+    /**
+     * Notify the USER of activity (agent joined, agent sent a message).
+     * Clicking focuses the current window and opens the chat modal.
      */
     function sendDesktopNotification(title, body) {
         if (!('Notification' in window) || Notification.permission !== 'granted') return;
@@ -745,9 +768,9 @@
             body,
             icon: 'logo.png',
             badge: 'logo.png',
-            tag: 'lora-agent-request',   // replaces any previous notification with same tag
-            renotify: true,              // re-plays sound/vibration even if tag matches
-            requireInteraction: true     // notification stays until user interacts
+            tag: 'lora-user-chat',
+            renotify: true,
+            requireInteraction: true
         });
         n.onclick = () => {
             window.focus();
@@ -755,7 +778,6 @@
             notificationBadge.style.display = 'none';
             n.close();
         };
-        // Safety fallback — close after 60 s
         setTimeout(() => n.close(), 60000);
     }
 
@@ -946,18 +968,18 @@
         // If permission is already granted, fire immediately.
         // If not yet asked, show a friendly in-page banner first, then try to fire.
         if (Notification.permission === 'granted') {
-            sendDesktopNotification(
+            sendAgentAlertNotification(
                 '💬 Live Agent Requested',
-                `A new client is asking to speak with a live agent. Click to open the chat.`
+                `A new client is asking to speak with a live agent. Click to open the agent dashboard.`
             );
         } else if (Notification.permission !== 'denied') {
             // Prompt via banner, then request permission and fire the notification
             showNotifPermissionBanner();
             const granted = await requestNotificationPermission();
             if (granted) {
-                sendDesktopNotification(
+                sendAgentAlertNotification(
                     '💬 Live Agent Requested',
-                    `A new client is asking to speak with a live agent. Click to open the chat.`
+                    `A nw client is asking to speak with a live agent. Click to open the agent dashboard.`
                 );
             }
         }
