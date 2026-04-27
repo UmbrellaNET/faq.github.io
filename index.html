@@ -948,7 +948,7 @@
         if (Notification.permission === 'granted') {
             sendDesktopNotification(
                 '💬 Live Agent Requested',
-                `${userName} is asking to speak with a live agent. Click to open the chat.`
+                `A new client is asking to speak with a live agent. Click to open the chat.`
             );
         } else if (Notification.permission !== 'denied') {
             // Prompt via banner, then request permission and fire the notification
@@ -957,7 +957,7 @@
             if (granted) {
                 sendDesktopNotification(
                     '💬 Live Agent Requested',
-                    `${userName} is asking to speak with a live agent. Click to open the chat.`
+                    `A new client is asking to speak with a live agent. Click to open the chat.`
                 );
             }
         }
