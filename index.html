@@ -692,6 +692,9 @@
         /\bconnect\s+me\s+(to|with)\s+(an?\s+)?(agent|human|person)\b/i,
         /\bneed\s+(an?\s+)?(agent|human|representative)\b/i,
         /\bescalate\b/i,
+        /\bhuman\b/i,
+        /\bagent\b/i,
+        /\blive\s+person\b/i,
     ];
 
     function wantsLiveAgent(text) { return AGENT_TRIGGERS.some(rx => rx.test(text)); }
