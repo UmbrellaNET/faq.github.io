@@ -332,7 +332,6 @@
             font-size: 0.85em;
         }
 
-        /* Clickable link styling inside agent messages */
         .agent-message a {
             color:#2D1B2E;
             text-decoration: underline;
@@ -344,7 +343,6 @@
             color: #A4358F;
         }
 
-        /* Links inside user (purple) bubbles */
         .user-message a {
             color: #FCE4F5;
             text-decoration: underline;
@@ -362,7 +360,7 @@
             border-bottom-left-radius: 6px;
             text-align: left;
             word-break: break-word;
-            hyphens: auto; /* Adds hyphens when breaking long words */
+            hyphens: auto;
         }
 
         .user-message {
@@ -516,7 +514,6 @@
             background: #A4358F;
         }
 
-        /* Notification permission banner */
         .notif-banner {
             position: fixed;
             top: 20px;
@@ -709,9 +706,8 @@
 
     // ── Desktop Notifications ─────────────────────────────────────────────────
 
-    /** Show a one-time banner asking the user to allow notifications. */
     function showNotifPermissionBanner() {
-        if (document.getElementById('notifBanner')) return; // already shown
+        if (document.getElementById('notifBanner')) return;
         const banner = document.createElement('div');
         banner.id = 'notifBanner';
         banner.className = 'notif-banner';
@@ -729,40 +725,7 @@
         });
         document.getElementById('notifDismissBtn').addEventListener('click', () => banner.remove());
 
-        // Auto-dismiss after 12 s
         setTimeout(() => { if (banner.isConnected) banner.remove(); }, 12000);
-    }
-
-    /** Request permission silently (no UI prompt from us). Returns true if granted. */
-    async function requestNotificationPermission() {
-        if (!('Notification' in window)) return false;
-        if (Notification.permission === 'granted') return true;
-        if (Notification.permission === 'denied') return false;
-        const result = await Notification.requestPermission();
-        return result === 'granted';
-    }
-
-    const AGENT_DASHBOARD_URL = 'https://umbrellanet.github.io/FAQDashboard.github.io/agent.html';
-
-    /**
-     * Notify AGENTS of an incoming chat request.
-     * Clicking opens the agent dashboard in a new tab.
-     */
-    function sendAgentAlertNotification(title, body) {
-        if (!('Notification' in window) || Notification.permission !== 'granted') return;
-        const n = new Notification(title, {
-            body,
-            icon: 'logo.png',
-            badge: 'logo.png',
-            tag: 'lora-agent-request',
-            renotify: true,
-            requireInteraction: true
-        });
-        n.onclick = () => {
-            window.open(AGENT_DASHBOARD_URL, '_blank');
-            n.close();
-        };
-        setTimeout(() => n.close(), 60000);
     }
 
     /**
@@ -790,11 +753,6 @@
 
     // ─────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Convert plain URLs in text into clickable <a> tags.
-     * Runs AFTER markdown is converted to HTML, so it only matches
-     * bare URLs that aren't already inside an href="..." attribute.
-     */
     function linkifyHTML(html) {
         return html.replace(
             /(?<!href=["'])(?<!['"=])(https?:\/\/[^\s<>"')\]]+)/g,
@@ -802,21 +760,15 @@
         );
     }
 
-    /**
-     * Convert plain text response from Gemini into HTML with paragraphs,
-     * lists, bold formatting, and clickable links.
-     */
     function formatAIResponseToHTML(text) {
         if (!text) return '<p>✨ No response received.</p>';
         let content = text.trim();
 
-        // Markdown inline formatting
         content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         content = content.replace(/__(.+?)__/g, '<strong>$1</strong>');
         content = content.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
         content = content.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
 
-        // Markdown links [text](url) → <a>
         content = content.replace(
             /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
             '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
@@ -830,7 +782,6 @@
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
 
-            // Unordered list item
             const listMatch = line.match(/^[\s]*([\*\-\•])\s+(.+)$/);
             if (listMatch) {
                 if (!inList || listType !== 'ul') {
@@ -843,7 +794,6 @@
                 continue;
             }
 
-            // Ordered list item
             const numMatch = line.match(/^[\s]*(\d+)\.\s+(.+)$/);
             if (numMatch) {
                 if (!inList || listType !== 'ol') {
@@ -863,7 +813,6 @@
 
             if (line.trim() === '') continue;
 
-            // Inline code
             let processedLine = line.replace(/`([^`]+)`/g, '<code>$1</code>');
             htmlParts.push(`<p>${processedLine}</p>`);
         }
@@ -873,7 +822,6 @@
         let result = htmlParts.join('');
         if (!result) result = `<p>${content}</p>`;
 
-        // Convert any remaining bare URLs to links
         result = linkifyHTML(result);
 
         return result;
@@ -971,28 +919,6 @@
         addSystemNotice("⏳ Requesting a live agent — please hold up to 1 minute...");
         bc.postMessage({ type: 'TRANSFER_REQUEST', userId, userName, lastMessage: 'user requested agent' });
 
-        // ── Desktop notification ──────────────────────────────────────────────
-        // If permission is already granted, fire immediately.
-        // If not yet asked, show a friendly in-page banner first, then try to fire.
-        if (Notification.permission === 'granted') {
-            sendAgentAlertNotification(
-                '💬 Live Agent Requested',
-                `A new client is asking to speak with a live agent.`
-            );
-        } else if (Notification.permission !== 'denied') {
-            // Prompt via banner, then request permission and fire the notification
-            showNotifPermissionBanner();
-            const granted = await requestNotificationPermission();
-            if (granted) {
-                sendAgentAlertNotification(
-                    '💬 Live Agent Requested',
-                    `A nw client is asking to speak with a live agent. Click to open the agent dashboard.`
-                );
-            }
-        }
-        // ─────────────────────────────────────────────────────────────────────
-
-        // Wait 1 minute before giving up
         setTimeout(() => {
             if (waitingForAgent) {
                 waitingForAgent = false;
@@ -1000,7 +926,7 @@
                 addMessage("😔 No agents are available right now. Please leave your details and we'll follow up shortly.", 'agent');
                 showDetailsForm();
             }
-        }, 60000); // 60 seconds = 1 minute
+        }, 60000);
     }
 
     const sessionId = 'web_signature_pink_' + Date.now();
@@ -1061,7 +987,6 @@
             addMessage(`Hi! I'm ${connectedAgentName}. How can I assist you today?`, 'agent');
             modal.classList.add('active');
 
-            // Notify the user (tab may be in background)
             sendDesktopNotification(
                 '✅ Agent Connected',
                 `${connectedAgentName} has joined the chat. Click to reply.`
@@ -1077,7 +1002,6 @@
             addMessage(msg.text, 'agent');
             modal.classList.add('active');
 
-            // Desktop notification for incoming agent message (tab may be in background)
             sendDesktopNotification(
                 `💬 ${connectedAgentName || 'Live Agent'}`,
                 msg.text.length > 80 ? msg.text.slice(0, 77) + '…' : msg.text
@@ -1133,8 +1057,6 @@
 
     setTimeout(() => { notificationBadge.style.display = 'none'; }, 5000);
 
-    // Proactively ask for notification permission shortly after page load
-    // (only if it hasn't been decided yet)
     window.addEventListener('load', () => {
         if ('Notification' in window && Notification.permission === 'default') {
             setTimeout(showNotifPermissionBanner, 3000);
