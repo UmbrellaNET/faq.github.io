@@ -952,8 +952,14 @@
                     hasChat:     true,
                     sessionKey:  null   // no Redis chat key for widget sessions
                 });
-                await fetch('https://quiet-snapper-78920.upstash.io/rpush/umbrellanet_missed_requests/' + encodeURIComponent(record), {
-                    headers: { Authorization: 'Bearer gQAAAAAAATRIAAIncDFmMTQwZmQyMTcyNDY0MWNkYmZkOGY0MDM3MjljODM3N3AxNzg5MjA' }
+                // Save Request to Redis
+                await fetch('https://quiet-snapper-78920.upstash.io/rpush', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: 'Bearer gQAAAAAAATRIAAIncDFmMTQwZmQyMTcyNDY0MWNkYmZkOGY0MDM3MjljODM3N3AxNzg5MjA',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(['umbrellanet_missed_requests', record])
                 });
             } catch (err) {
                 console.warn('Failed to log missed request:', err);
