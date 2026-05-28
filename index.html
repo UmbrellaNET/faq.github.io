@@ -198,6 +198,21 @@
             color: white;
         }
 
+        .agent-message ul, .agent-message ol {
+            margin: 8px 0 8px 20px;
+            padding-left: 0;
+        }
+        .agent-message li {
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+        .agent-message ol {
+            list-style-type: decimal;
+        }
+        .agent-message ul {
+            list-style-type: disc;
+        }
+
         .notification {
             position: absolute;
             top: -5px;
@@ -763,70 +778,90 @@
     function formatAIResponseToHTML(text) {
         if (!text) return '<p>✨ No response received.</p>';
         let content = text.trim();
-
+    
+        // Markdown inline formatting
         content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         content = content.replace(/__(.+?)__/g, '<strong>$1</strong>');
         content = content.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
         content = content.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
-
+    
+        // Markdown links [text](url) → <a>
         content = content.replace(
             /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
             '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
         );
-
+    
         const lines = content.split(/\r?\n/);
         let inList = false;
         let listType = 'ul';
         let htmlParts = [];
-
+        let orderedListCounter = 0;  // Track ordered list numbering
+    
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
-
+    
+            // Skip empty lines but don't break lists
+            if (line.trim() === '') {
+                if (inList) {
+                    htmlParts.push(`</${listType}>`);
+                    inList = false;
+                    orderedListCounter = 0;
+                }
+                continue;
+            }
+    
+            // Unordered list item
             const listMatch = line.match(/^[\s]*([\*\-\•])\s+(.+)$/);
             if (listMatch) {
                 if (!inList || listType !== 'ul') {
                     if (inList) htmlParts.push(`</${listType}>`);
-                    htmlParts.push('<ul>');
+                    htmlParts.push('<ul style="margin: 0.5rem 0 0.5rem 1.5rem; padding-left: 0.5rem;">');
                     inList = true;
                     listType = 'ul';
+                    orderedListCounter = 0;
                 }
-                htmlParts.push(`<li>${listMatch[2]}</li>`);
+                htmlParts.push(`<li style="margin-bottom: 0.5rem;">${listMatch[2]}</li>`);
                 continue;
             }
-
+    
+            // Ordered list item - match numbers like "1.", "2.", "10."
             const numMatch = line.match(/^[\s]*(\d+)\.\s+(.+)$/);
             if (numMatch) {
                 if (!inList || listType !== 'ol') {
                     if (inList) htmlParts.push(`</${listType}>`);
-                    htmlParts.push('<ol>');
+                    htmlParts.push('<ol style="margin: 0.5rem 0 0.5rem 1.5rem; padding-left: 0.5rem;">');
                     inList = true;
                     listType = 'ol';
+                    orderedListCounter = 0;
                 }
-                htmlParts.push(`<li>${numMatch[2]}</li>`);
+                // The browser will auto-number <li> elements starting from 1
+                // We don't need to preserve the original numbers
+                htmlParts.push(`<li style="margin-bottom: 0.5rem;">${numMatch[2]}</li>`);
                 continue;
             }
-
+    
+            // Not a list item, close any open list
             if (inList) {
                 htmlParts.push(`</${listType}>`);
                 inList = false;
+                orderedListCounter = 0;
             }
-
-            if (line.trim() === '') continue;
-
-            let processedLine = line.replace(/`([^`]+)`/g, '<code>$1</code>');
-            htmlParts.push(`<p>${processedLine}</p>`);
+    
+            // Inline code
+            let processedLine = line.replace(/`([^`]+)`/g, '<code style="background: rgba(164, 53, 143, 0.1); padding: 2px 6px; border-radius: 12px; font-family: monospace;">$1</code>');
+            htmlParts.push(`<p style="margin: 0.5rem 0;">${processedLine}</p>`);
         }
-
+    
         if (inList) htmlParts.push(`</${listType}>`);
-
+    
         let result = htmlParts.join('');
         if (!result) result = `<p>${content}</p>`;
-
+    
+        // Convert any remaining bare URLs to links
         result = linkifyHTML(result);
-
+    
         return result;
     }
-
     function addFormattedMessage(contentHtml, sender) {
         const div = document.createElement('div');
         div.classList.add('message', sender === 'user' ? 'user-message' : 'agent-message');
