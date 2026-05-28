@@ -198,7 +198,22 @@
             color: white;
         }
 
-
+        .notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 24px;
+            height: 24px;
+            background: #EF4444;
+            border-radius: 50%;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
 
         .chat-modal {
             position: fixed;
@@ -614,6 +629,7 @@
 
 <div class="ai-agent-button" id="aiAgentButton">
     <i class="fas fa-comment-dots"></i>
+    <div class="notification" id="notification">1</div>
 </div>
 
 <div class="chat-modal" id="chatModal">
@@ -667,6 +683,7 @@
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendMessage');
     const typingDiv = document.getElementById('typingIndicator');
+    const notificationBadge = document.getElementById('notification');
     const chatAgentNameSpan = document.getElementById('chatAgentName');
     const chatAgentStatusSpan = document.getElementById('chatAgentStatus');
     const statusDotSpan = document.getElementById('statusDot');
@@ -765,6 +782,7 @@
         n.onclick = () => {
             window.focus();
             modal.classList.add('active');
+            notificationBadge.style.display = 'none';
             n.close();
         };
         setTimeout(() => n.close(), 60000);
@@ -1081,6 +1099,7 @@
             }
         } else {
             modal.classList.add('active');
+            notificationBadge.style.display = 'none';
             setTimeout(() => chatInput.focus(), 200);
         }
     });
@@ -1104,6 +1123,7 @@
                 const text = el.innerText.trim().slice(0, 80);
                 if (text.length > 5) {
                     modal.classList.add('active');
+                    notificationBadge.style.display = 'none';
                     chatInput.value = `Tell me about: ${text}`;
                     chatInput.focus();
                 }
@@ -1111,6 +1131,7 @@
         });
     });
 
+    setTimeout(() => { notificationBadge.style.display = 'none'; }, 5000);
 
     // Proactively ask for notification permission shortly after page load
     // (only if it hasn't been decided yet)
