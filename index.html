@@ -923,11 +923,12 @@
         chatBody.insertBefore(formDiv, typingDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
 
-        document.getElementById('df_submit').addEventListener('click', () => {
-            const name = document.getElementById('df_name').value.trim();
+        document.getElementById('df_submit').addEventListener('click', async () => {
+            const name  = document.getElementById('df_name').value.trim();
             const email = document.getElementById('df_email').value.trim();
+            const note  = document.getElementById('df_msg').value.trim();
             if (!name || !email) {
-                if (!name) document.getElementById('df_name').style.borderColor = '#EF4444';
+                if (!name)  document.getElementById('df_name').style.borderColor  = '#EF4444';
                 if (!email) document.getElementById('df_email').style.borderColor = '#EF4444';
                 return;
             }
@@ -936,6 +937,28 @@
             awaitingDetails = false;
             addSystemNotice(`📨 Thanks ${name}, we'll contact you at ${email}.`);
             addMessage("Your details have been shared with our team. We'll reach out as soon as possible. Meanwhile, feel free to ask me anything!", 'agent');
+        
+            // ── Push missed request record to Redis ──────────────────────────────
+            try {
+                const record = JSON.stringify({
+                    id:          `${userId}_${Date.now()}`,
+                    userId,
+                    userName:    name,
+                    email,
+                    note,
+                    lastMessage: 'User left contact details after agent timeout',
+                    reason:      'timeout',
+                    time:        new Date().toISOString(),
+                    hasChat:     true,
+                    sessionKey:  null   // no Redis chat key for widget sessions
+                });
+                await fetch('https://quiet-snapper-78920.upstash.io/rpush/umbrellanet_missed_requests/' + encodeURIComponent(record), {
+                    headers: { Authorization: 'Bearer gQAAAAAAATRIAAIncDFmMTQwZmQyMTcyNDY0MWNkYmZkOGY0MDM3MjljODM3N3AxNzg5MjA' }
+                });
+            } catch (err) {
+                console.warn('Failed to log missed request:', err);
+            }
+            // ─────────────────────────────────────────────────────────────────────
         });
     }
 
